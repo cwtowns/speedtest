@@ -1,0 +1,45 @@
+{
+    "type": "result",
+    "timestamp": "2021-10-06T19:58:28Z",
+    "ping": {
+        "jitter": 2.6269999999999998,
+        "latency": 9.0380000000000003
+    },
+    "download": {
+        "bandwidth": 30855272,
+        "bytes": 473932011,
+        "elapsed": 15006
+    },
+    "upload": {
+        "bandwidth": 1119632,
+        "bytes": 13866048,
+        "elapsed": 11614
+    },
+    "packetLoss": 0.33444816053511706,
+    "isp": "Cox Communications",
+    "interface": {
+        "internalIp": "192.168.228.39",
+        "name": "eth0",
+        "macAddr": "00:15:5D:47:A3:C9",
+        "isVpn": false,
+        "externalIp": "68.96.41.153"
+    },
+    "server": {
+        "id": 16616,
+        "name": "Cox - Baton Rouge",
+        "location": "Baton Rouge, LA",
+        "country": "United States",
+        "host": "speedtest.rd.br.cox.net",
+        "port": 8080,
+        "ip": "184.182.243.225"
+    },
+    "result": {
+        "id": "5dca2601-670a-4845-ad1f-51a67fb70e21",
+        "url": "https://www.speedtest.net/result/c/5dca2601-670a-4845-ad1f-51a67fb70e21"
+    }
+}
+
+
+
+
+}

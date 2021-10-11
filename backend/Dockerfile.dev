@@ -1,0 +1,20 @@
+FROM node:14
+ENV foo=bar
+RUN curl -s https://install.speedtest.net/app/cli/install.deb.sh | bash
+RUN apt-get install speedtest
+
+RUN mkdir -p /usr/src/backend
+WORKDIR /usr/src/backend
+
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY nodemon.json ./
+
+RUN npm install 
+#not quite sure why this is necessary, but getting a permission denied in the container when i have it installed through packages.json devdeps
+RUN npm install -g nodemon
+
+COPY . /usr/src/backend
+EXPOSE 5000
+USER node
+CMD ["npm", "start"]
