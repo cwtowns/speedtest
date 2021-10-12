@@ -12,22 +12,6 @@ const router = express.Router();
 
 
 router.get('/speedtest', async function (req: express.Request, res: express.Response, next: express.NextFunction) {
-    /*
-    const aggregate: string = req.query['aggregate'] as string;
-    const howFarBackUnits: string = req.query['howFarBackUnits'] as string;
-    const howFarBackValue: number = parseInt(req.query['howFarBackValue'] as string); //this is wrong
-    const howFarBackStartDate: string = req.query['howFarBackStartDate'] as string;  //need to calculate this
-
-    if(!aggregate || (aggregate !== 'hourly' && aggregate !== 'daily' && aggregate != 'monthly')) {
-        res.send("error aggregate");
-        return;
-    }
-
-    if(!howFarBackUnits || (howFarBackUnits !== 'hour'&& howFarBackUnits !== 'day' && howFarBackUnits !== 'year')) {
-        res.send("error howFarBackUnits");
-        return;
-    }
-*/
     try {
         const requestQuery : SpeedTestQueryRange = validate(req.query);
 
@@ -48,10 +32,6 @@ router.get('/speedtest', async function (req: express.Request, res: express.Resp
         
         res.status(StatusCodes.BAD_REQUEST).send();
     }
-
-    
-
-    //res.send('Hello World from speedtest!')
 });
 
 export default router;
