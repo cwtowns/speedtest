@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get('/speedtest', async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const requestQuery : SpeedTestQueryRange = validate(req.query);
+        const requestQuery : SpeedTestQueryRange = validate(req.body);
 
         if(requestQuery) {
            console.log("data"); 

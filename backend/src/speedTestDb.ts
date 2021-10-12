@@ -3,12 +3,19 @@ import dayjs from 'dayjs'
 import { SpeedTestQueryRange } from './types/SpeedTestQueryRange'
 import { model } from 'mongoose';
 
-const getDateFormatForAggregate = (queryRange: SpeedTestQueryRange): string => {
-    switch (queryRange.aggregate) {
-        case "daily": return "%d";
-        case "hourly": return "%H";
-        case "monthly": return "%m";
-        default: throw Error("argument out of range:  " + queryRange.aggregate);
+const getDateFormatForAggregate = (queryRange: SpeedTestQueryRange, aggregateFor: "records" | "aggregate"): string | null => {
+
+    if(aggregateFor === "records") {
+        //we want the aggregate to calculate the average for whatever grouping has been specified by the client
+        switch (queryRange.aggregate) {
+            case "daily": return "%d";
+            case "hourly": return "%H";
+            case "monthly": return "%m";
+            default: throw Error("argument out of range:  " + queryRange.aggregate);
+        }
+    }
+    else {        
+        return null;  //we want the aggregate to calculate the averages for the entire date range in a single record
     }
 };
 
@@ -28,20 +35,81 @@ export class SpeedTestClass {
     @prop()
     public rawResult: string = "";
 
-    public static async findRecordsInRange(this: ReturnModelType<typeof SpeedTestClass>, range: SpeedTestQueryRange) : Promise<DetailedQueryResult> {
+    private static getAggregateObject(this: ReturnModelType<typeof SpeedTestClass>, range: SpeedTestQueryRange, aggregateFor: "records" | "aggregate") : object {
+        const aggregateInfo: object = {
+            $group: {
+                "_id": {
+                    "$dateToString": {
+                        format: getDateFormatForAggregate(range, aggregateFor),
+                        date: "$executionDate"
+                    }
+                },                
+                id: {
+                    "$dateToString": {
+                        format: getDateFormatForAggregate(range, aggregateFor),
+                        date: "$executionDate"
+                    }
+                },
+                averagePacketLoss: {
+                    $avg: "$packetLoss"
+                },
+                averageJitter: {
+                    $avg: "$jitter"
+                },
+                averageDownloadBandwidthBytes: {
+                    $avg: "$downloadBandwidthBytes"
+                },
+                averageUploadBandwidthBytes: {
+                    $avg: "$uploadBandwidthBytes"
+                },
+                averageLatency: {
+                    $avg: "$latency"
+                },
+                maxPacketLoss: {
+                    $max: "$packetLoss"
+                },
+                maxJitter: {
+                    $max: "$jitter"
+                },
+                maxDownloadBandwidthBytes: {
+                    $max: "$downloadBandwidthBytes"
+                },
+                maxUploadBandwidthBytes: {
+                    $max: "$uploadBandwidthBytes"
+                },
+                maxLatency: {
+                    $max: "$latency"
+                },
+                minPacketLoss: {
+                    $min: "$packetLoss"
+                },
+                minJitter: {
+                    $min: "$jitter"
+                },
+                minDownloadBandwidthBytes: {
+                    $min: "$downloadBandwidthBytes"
+                },
+                minUploadBandwidthBytes: {
+                    $min: "$uploadBandwidthBytes"
+                },
+                minLatency: {
+                    $min: "$latency"
+                },
+                dataPoints: {
+                    $sum: 1
+                }
+            }
+        };
+
+        return aggregateInfo;
+    }
+
+    public static async findRecordsInRange(this: ReturnModelType<typeof SpeedTestClass>, range: SpeedTestQueryRange): Promise<DetailedQueryResult> {
         const startTime = new Date(dayjs().subtract(range.howFarBack.value, range.howFarBack.units).toISOString()).toISOString();
         const endTime = new Date(range.howFarBack.startDate).toISOString();
 
-        const records: SpeedTestClass[] = await this.find({
-            timestamp: {
-                $gte: startTime,
-                $lte: endTime
-            }
-        }, {
-            rawResult: 0  //exclude rawResult
-        });
-
-        const aggregate = await this.aggregate([
+        
+        const mainRecords = await this.aggregate([
             {
                 "$match": {
                     executionDate: {
@@ -49,110 +117,52 @@ export class SpeedTestClass {
                         $lte: endTime
                     }
                 }
-            },
-            {
-                "$group": {
-                    "_id": {
-                        "$dateToString": {
-                            format: getDateFormatForAggregate(range),
-                            date: "$executionDate"
-                        }
-                    },
-                    "id": {
-                        "$dateToString": {
-                            format: getDateFormatForAggregate(range),
-                            date: "$executionDate"
-                        }
-                    },                    
-                    "averagePacketLoss": {
-                        "$avg": "$packetLoss"
-                    },
-                    "averageJitter": {
-                        "$avg": "$jitter"
-                    },
-                    "averageDownloadBandwidthBytes": {
-                        "$avg": "$downloadBandwidthBytes"
-                    },
-                    "averageUploadBandwidthBytes": {
-                        "$avg": "$uploadBandwidthBytes"
-                    },
-                    "averageLatency": {
-                        "$avg": "$latency"
-                    },
-                    "maxPacketLoss": {
-                        "$max": "$packetLoss"
-                    },
-                    "maxJitter": {
-                        "$max": "$jitter"
-                    },
-                    "maxDownloadBandwidthBytes": {
-                        "$max": "$downloadBandwidthBytes"
-                    },
-                    "maxUploadBandwidthBytes": {
-                        "$max": "$uploadBandwidthBytes"
-                    },
-                    "maxLatency": {
-                        "$max": "$latency"
-                    },
-                    "minPacketLoss": {
-                        "$min": "$packetLoss"
-                    },
-                    "minJitter": {
-                        "$min": "$jitter"
-                    },
-                    "minDownloadBandwidthBytes": {
-                        "$min": "$downloadBandwidthBytes"
-                    },
-                    "minUploadBandwidthBytes": {
-                        "$min": "$uploadBandwidthBytes"
-                    },
-                    "minLatency": {
-                        "$min": "$latency"
-                    },
-                    "dataPoints": {
-                        $sum: 1
-                    }
-                }
-            }
+            }, this.getAggregateObject(range, "records")
         ]);
 
-        const aggregateObject = {};
-        Object.assign(aggregateObject, aggregate);
+        const aggregateRecords = await this.aggregate([
+            {
+                "$match": {
+                    executionDate: {
+                        $gte: startTime,
+                        $lte: endTime
+                    }
+                }
+            }, this.getAggregateObject(range, "aggregate")
+        ]);
 
         const result: DetailedQueryResult = {
-            records: records,
-            aggregate: Object.assign({},)
+            records: mainRecords,
+            aggregate: aggregateRecords[0]
         };
-
-
 
         return result;
     }
 }
 
-export interface DetailedQueryResult { 
+export interface DetailedQueryResult {
     aggregate: SpeedTestAggregate;
-    records: SpeedTestClass[];
+    records: SpeedTestAggregate[];
 }
 
 export class SpeedTestAggregate {
     @prop()
     public _id: number = 0;
-    
+
     @prop()
     public maxDownloadBandwidthBytes: number = 0;
     @prop()
     public minDownloadBandwidthBytes: number = 0;
     @prop()
     public averageDownloadBandwidthBytes: number = 0;
-    
+
     @prop()
     public maxUploadBandwidthBytes: number = 0;
     @prop()
     public minUplodBandwidthBytes: number = 0;
     @prop()
     public averageUploadBandwidthBytes: number = 0;
-    
+
     @prop()
     public maxLatency: number = 0;
     @prop()
@@ -165,7 +175,7 @@ export class SpeedTestAggregate {
     @prop()
     public minPacketLoss: number = 0;
     @prop()
-    public averagePacketLoss: number = 0;    
+    public averagePacketLoss: number = 0;
 
     @prop()
     public maxJitter: number = 0;
@@ -180,7 +190,7 @@ export class SpeedTestAggregate {
 
 interface SpeedTestResults {
     records: SpeedTestClass[];
-    aggregate:  object;
+    aggregate: object;
 }
 
 export const SpeedTestModel = getModelForClass(SpeedTestClass, { schemaOptions: { timestamps: true, collection: "SpeedTests" } });
