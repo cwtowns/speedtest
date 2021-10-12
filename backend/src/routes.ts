@@ -2,42 +2,17 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import url from 'url';
 import * as queryString from 'querystring';
-
-import { SpeedTestQueryRange, DetailedQueryResult, SpeedTestModel } from './speedTestDb';
-
-//const { parse: parseQuery } = require('querystring');
+import { DetailedQueryResult, SpeedTestModel } from './speedTestDb';
+import { SpeedTestQueryRange } from './types/SpeedTestQueryRange';
+import validate from './types/SpeedTestQueryRange.validator';
+import {StatusCodes} from 'http-status-codes';
+import ajv, { ValidationError } from 'ajv';
 
 const router = express.Router();
 
-interface Example {
-    foo: 'foobar' | 'bogleg' | 'hyah';
-}
-
-
-const { check, oneOf, validationResult, buildCheckFunction } = require('express-validator');
-
-const checkBodyAndQuery = buildCheckFunction(['query']);
-
-router.get('/example', oneOf([
-    checkBodyAndQuery('foo').isIn(['foobar', 'bogleg', 'hyah'])
-]), (req, res, next) => {
-  try {
-    validationResult(req).throw();
-
-
-    const exampleFoo : Example = req.query.foo;
-    
-
-    const bar = exampleFoo.foo
-  } catch (err) {
-    // Oh noes. This user doesn't have enough skills for this...
-    res.status(400).json(...);
-  }
-});
-
-
 
 router.get('/speedtest', async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+    /*
     const aggregate: string = req.query['aggregate'] as string;
     const howFarBackUnits: string = req.query['howFarBackUnits'] as string;
     const howFarBackValue: number = parseInt(req.query['howFarBackValue'] as string); //this is wrong
@@ -52,19 +27,29 @@ router.get('/speedtest', async function (req: express.Request, res: express.Resp
         res.send("error howFarBackUnits");
         return;
     }
+*/
+    try {
+        const requestQuery : SpeedTestQueryRange = validate(req.query);
 
-    const requestQuery : SpeedTestQueryRange = {
-        aggregate : aggregate,
-        howFarBack : {
-            units: howFarBackUnits,
-            value: howFarBackValue,
-            startDate: howFarBackStartDate
+        if(requestQuery) {
+           console.log("data"); 
         }
-    };
+        else {
+            console.log("nope");
+        }
 
-    const result : DetailedQueryResult = await SpeedTestModel.findRecordsInRange(requestQuery);
+        const result: DetailedQueryResult = await SpeedTestModel.findRecordsInRange(requestQuery);
+        res.send(JSON.stringify(result));        
+    }
+    catch(err) {
+        if(err instanceof Error) {
+            res.status(StatusCodes.BAD_REQUEST).send(err.message);
+        }
+        
+        res.status(StatusCodes.BAD_REQUEST).send();
+    }
 
-    res.send(JSON.stringify(result));
+    
 
     //res.send('Hello World from speedtest!')
 });

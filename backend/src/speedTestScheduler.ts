@@ -17,7 +17,7 @@ const task = new Task('Speedtest', async () => {
 
 export const startScheduler = () : ToadScheduler => {
     console.log("Creating new scheduler.");
-    const job = new SimpleIntervalJob({ hours: 1, runImmediately: true}, task)
+    const job = new SimpleIntervalJob({ hours: 1, runImmediately: false}, task)
     scheduler.addSimpleIntervalJob(job);
     return scheduler;
 }

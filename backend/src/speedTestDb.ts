@@ -1,5 +1,6 @@
 import { prop, getModelForClass, ReturnModelType } from '@typegoose/typegoose';
 import dayjs from 'dayjs'
+import { SpeedTestQueryRange } from './types/SpeedTestQueryRange'
 import { model } from 'mongoose';
 
 const getDateFormatForAggregate = (queryRange: SpeedTestQueryRange): string => {
@@ -10,8 +11,6 @@ const getDateFormatForAggregate = (queryRange: SpeedTestQueryRange): string => {
         default: throw Error("argument out of range:  " + queryRange.aggregate);
     }
 };
-
-
 
 export class SpeedTestClass {
     @prop({ index: true })
@@ -131,7 +130,7 @@ export class SpeedTestClass {
     }
 }
 
-export interface DetailedQueryResult {
+export interface DetailedQueryResult { 
     aggregate: SpeedTestAggregate;
     records: SpeedTestClass[];
 }
@@ -182,15 +181,6 @@ export class SpeedTestAggregate {
 interface SpeedTestResults {
     records: SpeedTestClass[];
     aggregate:  object;
-}
-
-export interface SpeedTestQueryRange {
-    howFarBack: {
-        units: 'hour' | 'day' | 'year';
-        value: number;
-        startDate: string;
-    }
-    aggregate: 'hourly' | 'daily' | 'monthly';
 }
 
 export const SpeedTestModel = getModelForClass(SpeedTestClass, { schemaOptions: { timestamps: true, collection: "SpeedTests" } });
