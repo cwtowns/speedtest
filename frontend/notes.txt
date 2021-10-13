@@ -1,0 +1,30 @@
+query for last 24 hours:
+{
+    "howFarBack": {
+        "units" : "hour",
+        "value" : 24,
+        "startDate" : "2021-10-11T23:59:59.000Z"
+    },
+    "aggregate" : "hourly"    
+}
+
+query for last month:
+{
+    "howFarBack": {
+        "units" : "day",
+        "value" : 30,
+        "startDate" : "2021-10-11T23:59:59.000Z"
+    },
+    "aggregate" : "daily"    
+}
+
+query for the last year:
+
+{
+    "howFarBack": {
+        "units" : "year",
+        "value" : 1,
+        "startDate" : "2021-10-11T23:59:59.000Z"
+    },
+    "aggregate" : "monthly"    
+}

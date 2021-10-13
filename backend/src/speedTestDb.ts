@@ -3,20 +3,19 @@ import dayjs from 'dayjs'
 import { SpeedTestQueryRange } from './types/SpeedTestQueryRange'
 import { model } from 'mongoose';
 
-const getDateFormatForAggregate = (queryRange: SpeedTestQueryRange, aggregateFor: "records" | "aggregate"): string | null => {
+const getDateFormatForAggregate = (queryRange: SpeedTestQueryRange, aggregateFor: "records" | "aggregate"): object | null => {
 
     if(aggregateFor === "records") {
         //we want the aggregate to calculate the average for whatever grouping has been specified by the client
-        switch (queryRange.aggregate) {
-            case "daily": return "%d";
-            case "hourly": return "%H";
-            case "monthly": return "%m";
+        switch (queryRange.howFarBack.units) {
+            case "year": return { "$dateToString" : { "format" : "%m", "date" : "$executionDate"} }; 
+            case "hour": return { "$dateToString" : { "format" : "%H", "date" : "$executionDate"} }
+            case "day": return { "$dateToString" : { "format" : "%d", "date" : "$executionDate"} }
             default: throw Error("argument out of range:  " + queryRange.aggregate);
         }
     }
-    else {        
-        return null;  //we want the aggregate to calculate the averages for the entire date range in a single record
-    }
+
+    return null;  //we want the aggregate to calculate the averages for the entire date range in a single record
 };
 
 export class SpeedTestClass {
@@ -38,18 +37,8 @@ export class SpeedTestClass {
     private static getAggregateObject(this: ReturnModelType<typeof SpeedTestClass>, range: SpeedTestQueryRange, aggregateFor: "records" | "aggregate") : object {
         const aggregateInfo: object = {
             $group: {
-                "_id": {
-                    "$dateToString": {
-                        format: getDateFormatForAggregate(range, aggregateFor),
-                        date: "$executionDate"
-                    }
-                },                
-                id: {
-                    "$dateToString": {
-                        format: getDateFormatForAggregate(range, aggregateFor),
-                        date: "$executionDate"
-                    }
-                },
+                "_id": getDateFormatForAggregate(range, aggregateFor),
+                //id: getDateFormatForAggregate(range, aggregateFor),
                 averagePacketLoss: {
                     $avg: "$packetLoss"
                 },
@@ -99,33 +88,35 @@ export class SpeedTestClass {
                     $sum: 1
                 }
             }
-        };
+        };        
 
         return aggregateInfo;
     }
 
     public static async findRecordsInRange(this: ReturnModelType<typeof SpeedTestClass>, range: SpeedTestQueryRange): Promise<DetailedQueryResult> {
-        const startTime = new Date(dayjs().subtract(range.howFarBack.value, range.howFarBack.units).toISOString()).toISOString();
-        const endTime = new Date(range.howFarBack.startDate).toISOString();
-
+        const endTime = new Date(range.howFarBack.startDate);
+        console.log("endTime " + endTime);
+        const startTime = dayjs(endTime).subtract(range.howFarBack.value, range.howFarBack.units).toDate();
+        console.log("startTime " + startTime);
         
         const mainRecords = await this.aggregate([
             {
                 "$match": {
                     executionDate: {
-                        $gte: startTime,
-                        $lte: endTime
+                        $lte: endTime,
+                        $gte: startTime
                     }
                 }
-            }, this.getAggregateObject(range, "records")
+            }, this.getAggregateObject(range, "records"),
+            { $sort : { _id : 1 } }
         ]);
 
         const aggregateRecords = await this.aggregate([
             {
                 "$match": {
                     executionDate: {
-                        $gte: startTime,
-                        $lte: endTime
+                        $lte: endTime,
+                        $gte: startTime
                     }
                 }
             }, this.getAggregateObject(range, "aggregate")

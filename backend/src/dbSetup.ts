@@ -10,4 +10,6 @@ mongoose
 
 const db = mongoose.connection
 
+mongoose.set('debug', true);
+
 export default db;
