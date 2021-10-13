@@ -30,6 +30,8 @@ app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))
 // when stopping your app
 process.on('SIGTERM', function() {
     scheduler.stop();
+
+    
 });
 
 console.log("started");

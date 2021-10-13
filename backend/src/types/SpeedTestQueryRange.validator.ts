@@ -5,6 +5,7 @@ import Ajv from 'ajv';
 import SpeedTestQueryRange from './SpeedTestQueryRange';
 export const ajv = new Ajv({"allErrors":true,"coerceTypes":false,"format":"fast","nullable":true,"unicode":true,"uniqueItems":true,"useDefaults":true});
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 
 export {SpeedTestQueryRange};

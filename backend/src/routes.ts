@@ -1,12 +1,8 @@
 import express from 'express';
-import bodyParser from 'body-parser';
-import url from 'url';
-import * as queryString from 'querystring';
 import { DetailedQueryResult, SpeedTestModel } from './speedTestDb';
 import { SpeedTestQueryRange } from './types/SpeedTestQueryRange';
 import validate from './types/SpeedTestQueryRange.validator';
 import {StatusCodes} from 'http-status-codes';
-import ajv, { ValidationError } from 'ajv';
 
 const router = express.Router();
 

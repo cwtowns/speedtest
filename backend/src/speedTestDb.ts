@@ -22,17 +22,17 @@ export class SpeedTestClass {
     @prop({ index: true })
     public executionDate: Date = new Date();
     @prop()
-    public packetLoss: number = 0;
+    public packetLoss = 0;
     @prop()
-    public jitter: number = 0;
+    public jitter = 0;
     @prop()
-    public downloadBandwidthBytes: number = 0;
+    public downloadBandwidthBytes = 0;
     @prop()
-    public uploadBandwidthBytes: number = 0;
+    public uploadBandwidthBytes = 0;
     @prop()
-    public latency: number = 0;
+    public latency = 0;
     @prop()
-    public rawResult: string = "";
+    public rawResult = "";
 
     private static getAggregateObject(this: ReturnModelType<typeof SpeedTestClass>, range: SpeedTestQueryRange, aggregateFor: "records" | "aggregate") : object {
         const aggregateInfo: object = {
@@ -138,45 +138,45 @@ export interface DetailedQueryResult {
 
 export class SpeedTestAggregate {
     @prop()
-    public _id: number = 0;
+    public _id = 0;
 
     @prop()
-    public maxDownloadBandwidthBytes: number = 0;
+    public maxDownloadBandwidthBytes = 0;
     @prop()
-    public minDownloadBandwidthBytes: number = 0;
+    public minDownloadBandwidthBytes = 0;
     @prop()
-    public averageDownloadBandwidthBytes: number = 0;
+    public averageDownloadBandwidthBytes = 0;
 
     @prop()
-    public maxUploadBandwidthBytes: number = 0;
+    public maxUploadBandwidthBytes = 0;
     @prop()
-    public minUplodBandwidthBytes: number = 0;
+    public minUplodBandwidthBytes = 0;
     @prop()
-    public averageUploadBandwidthBytes: number = 0;
+    public averageUploadBandwidthBytes = 0;
 
     @prop()
-    public maxLatency: number = 0;
+    public maxLatency = 0;
     @prop()
-    public minLatency: number = 0;
+    public minLatency = 0;
     @prop()
-    public averageLatency: number = 0;
+    public averageLatency = 0;
 
     @prop()
-    public maxPacketLoss: number = 0;
+    public maxPacketLoss = 0;
     @prop()
-    public minPacketLoss: number = 0;
+    public minPacketLoss = 0;
     @prop()
-    public averagePacketLoss: number = 0;
+    public averagePacketLoss = 0;
 
     @prop()
-    public maxJitter: number = 0;
+    public maxJitter = 0;
     @prop()
-    public minJitter: number = 0;
+    public minJitter = 0;
     @prop()
-    public averageJitter: number = 0;
+    public averageJitter = 0;
 
     @prop()
-    public dataPoints: number = 0;
+    public dataPoints = 0;
 }
 
 interface SpeedTestResults {
@@ -201,14 +201,14 @@ interface SpeedTestUtilityResult {
     "upload": {
         "bandwidth": number;
     };
-};
+}
 
 export const writeResult = async (jsonResults: string): Promise<void> => {
     if (!jsonResults)
         throw Error("Arugment out of range:  jsonResults");
 
     const resultObject: SpeedTestUtilityResult = {} as SpeedTestUtilityResult;
-    let objectData = JSON.parse(jsonResults);
+    const objectData = JSON.parse(jsonResults);
     Object.assign(resultObject, objectData);
 
     const instance = new SpeedTestClass();
