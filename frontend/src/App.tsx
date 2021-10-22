@@ -28,7 +28,7 @@ function DefaultReactApp() {
   );
 }
 
-function App() {
+const App = () => {  
   return (
       <Tabs>
         <TabList>
