@@ -1,20 +1,5 @@
-This is a sample site with a mongo / typegoose node backend and react front end.  Typescript has been added and the build deploys with docker-compose.  nodemon watches the local filesystem for changes and hot reloads.  This avoids the need to redeploy via Docker to realize your changes.  There is also a devcontainer configuration to allow VSCode to launch in the container and edit there.  
+This is still a work in progress.
 
-Initial Docker setup is taken from [here]( https://zzzachzzz.github.io/blog/dockerizing-a-mern-app-for-development-and-production) and probably has some flaws with my modifications.  I am still new to Docker and this is not meant to be a guide to best practices.  For example, I have not tested or updated the prod side of the Docker configuration.  
+A program to automate running and storing internet speedtest results.  The backend runs in a docker container, store results in Mongodb via Typegoose/Mongoose and presents a simple REST API over Express to retrieve the results.  I'm planning for a React front end that graphs the results over time, showing my averages and outliers for the day, week, month and year.  Mostly this project is an excuse to play with Mongodb and do some nodejs work on the backend.  
 
-The backend site has a basic movies api:
-
-GET  
-http://localhost:3000/api/movie
-
-POST  
-http://localhost:3000/api/movie  
-```
-{  
-    "name": "Avengers: Endgame",  
-    "time": ["14:15", "16:00", "21:30", "23:00"],  
-    "rating": 8.8  
-}
-```
-
-The front end is hosted on http://localhost:8000 and is simply the starter react app and 2 pages for invoking the backend api.  Mostly this is a nice starter project for me to refer back to or clone to get started on a new project 🙂
+Overall I am very fond of TypeScript, but I do see a potential problem with duplicate source of truths in applications.  Typegoose is a means to address this for Mongoose and TypeScript projects, but it is not fully complete.  For example, my aggregate queries have duplicate type information in the query and the returned class SpeedTestAggregate.  There is also the potential for duplicate source of truth information at the api boundary, when validating the inbound request and translating it into a TypeScript type.  The typescript-json-validator project is an attempt to address this, but it depends on older versions of some libraries which is worrying.  I am interested in learning more about how project mitigate these types of issues in the TypeScript ecosystem.  
