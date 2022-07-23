@@ -9,6 +9,8 @@ services:
       EXPRESS_HOST: backend
 
   backend:
+    depends_on:      
+     - "mongo"
     build:
       context: ./backend
       dockerfile: Dockerfile

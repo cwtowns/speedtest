@@ -1,16 +1,17 @@
-<!--
-This example fetches latest Vue.js commits data from GitHub’s API and displays them as a list.
-You can switch between the two branches.
--->
-
 <script>
-const API_URL = `https://api.github.com/repos/vuejs/core/commits?per_page=3&sha=`;
+import { getSpeedTestQueryObject } from "../Helpers";
+import * as axios from "axios";
+
+axios.get("fdfdasdfsa");
+const API_URL = `http://localhost:3000/api/speedtest`;
 
 export default {
   data: () => ({
     branches: ["main", "v2-compat"],
     currentBranch: "main",
     commits: null,
+    dataRangeOptions: ["Day", "Week", "Month", "Year"],
+    currentDataRange: "Week",
   }),
 
   created() {
@@ -25,7 +26,8 @@ export default {
 
   methods: {
     async fetchData() {
-      const url = `${API_URL}${this.currentBranch}`;
+      const url = `${API_URL}`;
+
       this.commits = await (await fetch(url)).json();
     },
     truncate(v) {
@@ -43,7 +45,12 @@ export default {
   <div>
     <div class="currentDataSet">
       <span class="currentUnitOfMeasure">DL Bandwidth</span> - Last
-      <span class="currentDataRange">Day</span>
+      <v-select
+        class="currentDataRange"
+        :items="dataRangeOptions"
+        label="Range"
+        v-model="currentDataRange"
+      ></v-select>
     </div>
     <div class="graphArea">Graph goes here</div>
     <div class="dataSets">Data Sets go here</div>
