@@ -104,5 +104,14 @@ const getSpeedTestQueryObject = (
 export const getData = async (
   range: DataRangeOptions
 ): Promise<DetailedQueryResult> => {
-  return await axios.post(API, getSpeedTestQueryObject(range))
+  const request = getSpeedTestQueryObject(range)
+  console.log('getData', { request })
+  const result = await axios.post(API, request)
+
+  if (result.status !== 200) {
+    throw new Error('getData:  backend responded ' + result.status)
+  }
+  const response = result.data
+  console.log('getData', { response })
+  return result.data as DetailedQueryResult
 }

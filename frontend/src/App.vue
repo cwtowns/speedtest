@@ -7,11 +7,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import SpeedTest from "./components/SpeedTest.vue";
+import { defineComponent } from 'vue'
+import SpeedTest from './components/SpeedTest.vue'
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
 
   components: {
     SpeedTest,
@@ -20,7 +20,7 @@ export default defineComponent({
   data() {
     return {
       //
-    };
+    }
   },
-});
+})
 </script>

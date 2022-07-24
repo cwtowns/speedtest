@@ -3,9 +3,6 @@ import { getData } from '../Api'
 
 export default {
   data: () => ({
-    branches: ['main', 'v2-compat'],
-    currentBranch: 'main',
-    commits: null,
     dataRangeOptions: ['Day', 'Week', 'Month', 'Year'],
     currentDataRange: 'Week',
     hasError: false,
@@ -18,7 +15,7 @@ export default {
 
   watch: {
     // re-fetch whenever currentBranch changes
-    currentBranch: 'fetchData',
+    currentDataRange: 'fetchData',
   },
 
   methods: {
@@ -27,6 +24,7 @@ export default {
         this.hasError = false
         await getData(this.currentDataRange)
       } catch (error) {
+        console.error(error)
         this.hasError = true
       }
     },
@@ -39,6 +37,7 @@ export default {
     <div class="currentDataSet">
       <span class="currentUnitOfMeasure">DL Bandwidth</span> - Last
       <v-select
+        v-if="!error"
         class="currentDataRange"
         :items="dataRangeOptions"
         label="Range"
