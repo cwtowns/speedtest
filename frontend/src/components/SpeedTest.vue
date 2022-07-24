@@ -1,44 +1,37 @@
 <script>
-import { getSpeedTestQueryObject } from "../Helpers";
-import * as axios from "axios";
-
-axios.get("fdfdasdfsa");
-const API_URL = `http://localhost:3000/api/speedtest`;
+import { getData } from '../Api'
 
 export default {
   data: () => ({
-    branches: ["main", "v2-compat"],
-    currentBranch: "main",
+    branches: ['main', 'v2-compat'],
+    currentBranch: 'main',
     commits: null,
-    dataRangeOptions: ["Day", "Week", "Month", "Year"],
-    currentDataRange: "Week",
+    dataRangeOptions: ['Day', 'Week', 'Month', 'Year'],
+    currentDataRange: 'Week',
+    hasError: false,
   }),
 
   created() {
     // fetch on init
-    this.fetchData();
+    this.fetchData()
   },
 
   watch: {
     // re-fetch whenever currentBranch changes
-    currentBranch: "fetchData",
+    currentBranch: 'fetchData',
   },
 
   methods: {
     async fetchData() {
-      const url = `${API_URL}`;
-
-      this.commits = await (await fetch(url)).json();
-    },
-    truncate(v) {
-      const newline = v.indexOf("\n");
-      return newline > 0 ? v.slice(0, newline) : v;
-    },
-    formatDate(v) {
-      return v.replace(/T|Z/g, " ");
+      try {
+        this.hasError = false
+        await getData(this.currentDataRange)
+      } catch (error) {
+        this.hasError = true
+      }
     },
   },
-};
+}
 </script>
 
 <template>

@@ -6,8 +6,7 @@ import {StatusCodes} from 'http-status-codes';
 
 const router = express.Router();
 
-
-router.get('/speedtest', async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+const processRequest = async function (req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const requestQuery : SpeedTestQueryRange = validate(req.body);
 
@@ -28,6 +27,9 @@ router.get('/speedtest', async function (req: express.Request, res: express.Resp
         
         res.status(StatusCodes.BAD_REQUEST).send();
     }
-});
+}
+
+router.get('/speedtest', processRequest);
+router.post('/speedtest', processRequest);
 
 export default router;
